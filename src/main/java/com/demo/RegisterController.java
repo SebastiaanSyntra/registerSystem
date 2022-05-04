@@ -74,6 +74,9 @@ public class RegisterController implements Initializable {
 
         categoryColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Category"));
+        amountColumn.setCellValueFactory(
+                new PropertyValueFactory<>("Amount")
+        );
     }
 
     public void newSaleHeader() throws IOException {
@@ -109,11 +112,12 @@ public class RegisterController implements Initializable {
     public void scanArticle() {
 
         int index = 0;
+        Article scannedArticle = new Article();
 
         //SMTPH-Iph12-1
         HttpResponse<Json> apiResponse = Unirest.get("http://localhost:8080/api/v1/articles/" + barcodeBox.getText()).asJson();
 
-        Article scannedArticle = new Article();
+
 
         scannedArticle = new Gson().fromJson(apiResponse.body().toString(), Article.class);
         scannedArticle.setBarcode(barcodeBox.getText());
@@ -121,10 +125,8 @@ public class RegisterController implements Initializable {
 
         if (articleList.isEmpty()) {
             scannedArticle.setAmount(1);
-            articleList.add(scannedArticle);
-
-        } else {
-
+            articleList.add(scannedArticle);}
+        else {
 
             for (Article articleFromList : articleList) {
                 if (articleAlreadyScanned == false) {
@@ -132,26 +134,25 @@ public class RegisterController implements Initializable {
                         articleAlreadyScanned = true;
                     }
                     index += 1;
-                } else {
                 }
-
             }
 
             if(articleAlreadyScanned){
                 articleList.get(index-1).amount += 1;
-                articleAlreadyScanned = false;
-
-
-                } else{
+                articleAlreadyScanned = false;}
+            else{
                     articleList.add(scannedArticle);
                     scannedArticle.setAmount(1);
-
                 }
             index = 0;
             }
 
 
-         tableView.getItems().add(scannedArticle);
+        tableView.getItems().clear();
+        for (Article tableArticle:articleList
+             ) {
+            tableView.getItems().add(tableArticle);
+        }
 
 
         System.out.println("**********************************************");
@@ -165,10 +166,24 @@ public class RegisterController implements Initializable {
         }
     }
 
+    public void clearAll(){
+        tableView.getItems().clear();
+        articleColumn.setCellValueFactory(
+                new PropertyValueFactory<>("Article"));
+
+        priceColumn.setCellValueFactory(
+                new PropertyValueFactory<>("Price"));
+
+        categoryColumn.setCellValueFactory(
+                new PropertyValueFactory<>("Category"));
+        amountColumn.setCellValueFactory(
+                new PropertyValueFactory<>("Amount")
+        );
+
+    }
+
 
     public void payCash() throws IOException {
-
-
 
         //Iterating through all the scanned articles
         for (Article scannedArticle: articleList
@@ -193,12 +208,7 @@ public class RegisterController implements Initializable {
             OutputStream stream = http.getOutputStream();
             stream.write(out);
             System.out.println(http.getResponseCode());
-
             http.disconnect();
         }
-
-
-
     }
-
 }
