@@ -68,10 +68,8 @@ public class RegisterController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         articleColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Article"));
-
         priceColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Price"));
-
         categoryColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Category"));
         amountColumn.setCellValueFactory(
@@ -118,18 +116,21 @@ public class RegisterController implements Initializable {
         HttpResponse<Json> apiResponse = Unirest.get("http://localhost:8080/api/v1/articles/" + barcodeBox.getText()).asJson();
 
 
-
+        //articleobject invullen
         scannedArticle = new Gson().fromJson(apiResponse.body().toString(), Article.class);
         scannedArticle.setBarcode(barcodeBox.getText());
 
-
+        //check of het artikel al gescand is
         if (articleList.isEmpty()) {
+            //niet gescand => toegevoegd aan List met aantal = 1
             scannedArticle.setAmount(1);
             articleList.add(scannedArticle);}
         else {
-
+            //lijst met gescande articles doorlopen
             for (Article articleFromList : articleList) {
+                //articleAlreadyScanned houdt bij of het artikel al gescand werd.
                 if (articleAlreadyScanned == false) {
+                   //De barcode van alle artikel in de lijst gecheckt met het nieuw gescande artikel. Als dit matched wordt de boolean op true gezet zodat dit niet meer wordt doorlopen
                     if (articleFromList.getBarcode().equals(scannedArticle.getBarcode()) && (articleAlreadyScanned == false)) {
                         articleAlreadyScanned = true;
                     }
@@ -137,10 +138,12 @@ public class RegisterController implements Initializable {
                 }
             }
 
+            //als het article al gescanned werd wordt de amount aangepast
             if(articleAlreadyScanned){
                 articleList.get(index-1).amount += 1;
                 articleAlreadyScanned = false;}
             else{
+                //anders gewoon toegevoegd met amount = 1
                     articleList.add(scannedArticle);
                     scannedArticle.setAmount(1);
                 }
@@ -148,6 +151,7 @@ public class RegisterController implements Initializable {
             }
 
 
+        //table wordt bij elke scan gecleared om de articleList volledig opnieuw in te laden (kon dit niet anders oplossen..)
         tableView.getItems().clear();
         for (Article tableArticle:articleList
              ) {
@@ -155,30 +159,30 @@ public class RegisterController implements Initializable {
         }
 
 
-        System.out.println("**********************************************");
-        for (Article articleFromList: articleList
-             ) {
-            System.out.println("---------------------------------------");
-            System.out.println("Barcode: "+ articleFromList.getBarcode());
-            System.out.println("Artikel: "+ articleFromList.getArticle());
-            System.out.println("Prijs: "+ articleFromList.getPrice());
-            System.out.println("Aantal: "+ articleFromList.getAmount());
-        }
+        //Testcode
+//        System.out.println("**********************************************");
+//        for (Article articleFromList: articleList
+//             ) {
+//            System.out.println("---------------------------------------");
+//            System.out.println("Barcode: "+ articleFromList.getBarcode());
+//            System.out.println("Artikel: "+ articleFromList.getArticle());
+//            System.out.println("Prijs: "+ articleFromList.getPrice());
+//            System.out.println("Aantal: "+ articleFromList.getAmount());
+//        }
+
     }
 
+    //Clear all knop => nog op te kuisen want verwijdert ook kolommen
     public void clearAll(){
         tableView.getItems().clear();
         articleColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Article"));
-
         priceColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Price"));
-
         categoryColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Category"));
         amountColumn.setCellValueFactory(
-                new PropertyValueFactory<>("Amount")
-        );
+                new PropertyValueFactory<>("Amount"));
 
     }
 
@@ -188,6 +192,7 @@ public class RegisterController implements Initializable {
         //Iterating through all the scanned articles
         for (Article scannedArticle: articleList
              ) {
+
             //Opening the connection
             URL url = new URL("http://localhost:8080/api/v1/sale-lines");
             HttpURLConnection http = (HttpURLConnection)url.openConnection();
@@ -195,6 +200,7 @@ public class RegisterController implements Initializable {
             http.setRequestProperty("Content-Type", "application/json");
             http.setRequestProperty("Accept", "application/json");
             http.setDoOutput(true);
+
             //Building the JSON
             String data = "{\n" +
                     "    \"barcode\":\""+scannedArticle.getBarcode()+"\",\n" +
