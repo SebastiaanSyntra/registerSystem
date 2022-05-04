@@ -10,17 +10,38 @@ import java.util.List;
 
 
 public class Article {
+    public String barcode;
     public String article;
     public String category;
+    public int amount;
     public double price;
 
     public Article() {
     }
 
-    public Article(String article, String category, double price) {
+    public Article(String barcode, String article, String category, int amount, double price) {
+        this.barcode = barcode;
         this.article = article;
         this.category = category;
+        this.amount = amount;
         this.price = price;
+
+    }
+
+    public int getAmount() {
+        return amount;
+    }
+
+    public void setAmount(int amount) {
+        this.amount = amount;
+    }
+
+    public String getBarcode() {
+        return barcode;
+    }
+
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
     }
 
     public String getArticle() {
