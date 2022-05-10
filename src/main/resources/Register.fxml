@@ -32,15 +32,28 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.demo.RegisterController">
+<VBox prefHeight="713.0" prefWidth="1040.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.demo.RegisterController">
   <children>
-    <MenuBar prefHeight="1080.0" prefWidth="1920.0" VBox.vgrow="ALWAYS">
+    <MenuBar prefHeight="0.0" prefWidth="1883.0" VBox.vgrow="ALWAYS">
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
@@ -79,56 +92,41 @@
         </Menu>
       </menus>
     </MenuBar>
-    <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
-      <items>
-        <AnchorPane>
+
+        <AnchorPane prefHeight="154.0" prefWidth="1643.0">
           <children>
-            <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" minWidth="60.0" prefWidth="-1.0" style="&#10;" text="Master" textAlignment="CENTER" wrapText="false">
-              <font>
-                <Font size="18.0" fx:id="x1" />
-              </font>
-              <textFill>
-                <Color red="0.624" green="0.624" blue="0.624" fx:id="x2" />
-              </textFill>
-            </Label>
-                  <Label layoutX="20.0" layoutY="63.0" text="Verkoper" />
-                  <TextField fx:id="employeeField" layoutX="90.0" layoutY="59.0" prefHeight="25.0" prefWidth="118.0" />
-                  <TextField fx:id="barcodeBox" layoutX="37.0" layoutY="213.0" prefHeight="86.0" prefWidth="158.0" />
-                  <Button fx:id="newSale" layoutX="105.0" layoutY="100.0" mnemonicParsing="false" onAction="#newSaleHeader" text="Nieuwe verkoop" />
-                  <Button fx:id="articleScanner" layoutX="105.0" layoutY="311.0" mnemonicParsing="false" onAction="#scanArticle" text="Scan barcode" />
+                  <Button fx:id="removeLastButton" layoutX="800.0" layoutY="2.0" mnemonicParsing="false" text="Laatste verwijderen" />
+                  <Label layoutX="20.0" layoutY="26.0" text="Verkoper" />
+                  <TextField fx:id="employeeField" layoutX="98.0" layoutY="22.0" prefHeight="25.0" prefWidth="118.0" />
+                  <TextField fx:id="barcodeBox" layoutX="251.0" layoutY="22.0" prefHeight="25.0" prefWidth="158.0" />
+                  <Button fx:id="newSale" layoutX="113.0" layoutY="58.0" mnemonicParsing="false" onAction="#newSaleHeader" text="Nieuwe verkoop" />
+                  <Button fx:id="articleScanner" layoutX="321.0" layoutY="58.0" mnemonicParsing="false" onAction="#scanArticle" text="Scan barcode" />
+                  <Button fx:id="payCashButton" layoutX="800.0" layoutY="58.0" mnemonicParsing="false" onAction="#payCash" prefHeight="25.0" prefWidth="118.0" style="-fx-background-color: green;" text="Afrekenen cash" textFill="WHITE" />
+                  <Button fx:id="removeAllButton" layoutX="800.0" layoutY="31.0" mnemonicParsing="false" onAction="#clearAll" prefHeight="25.0" prefWidth="118.0" text="Alles verwijderen" />
           </children>
         </AnchorPane>
-        <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
+        <ScrollPane prefHeight="503.0" prefWidth="982.0">
           <content>
-            <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
+            <AnchorPane id="Content" prefHeight="393.0" prefWidth="922.0">
               <children>
-                <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="View" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-                        <TableView fx:id="tableView" layoutX="1.0" layoutY="-5.0" prefHeight="441.0" prefWidth="433.0">
+                        <TableView fx:id="tableView" layoutX="17.0" layoutY="8.0" prefHeight="376.0" prefWidth="726.0">
                           <columns>
-                            <TableColumn fx:id="articleColumn" prefWidth="117.0" text="Artkel" />
-                            <TableColumn fx:id="categoryColumn" prefWidth="100.0" text="Categorie" />
-                              <TableColumn fx:id="priceColumn" prefWidth="68.0" text="Eenheidsprijs" />
-                              <TableColumn fx:id="amountColumn" prefWidth="55.0" text="Aantal" />
-                              <TableColumn fx:id="calculatedPriceColumn" prefWidth="92.0" text="Prijs" />
+                            <TableColumn fx:id="articleColumn" prefWidth="135.0" text="Artkel" />
+                            <TableColumn fx:id="categoryColumn" prefWidth="130.0" text="Categorie" />
+                              <TableColumn fx:id="priceColumn" prefWidth="123.0" text="Eenheidsprijs" />
+                              <TableColumn fx:id="amountColumn" maxWidth="300.0" prefWidth="360.0" text="Aantal" />
+                              <TableColumn fx:id="calculatedPriceColumn" minWidth="0.0" prefWidth="0.0" text="Prijs" />
                           </columns>
                         </TableView>
-                        <Label layoutX="249.0" layoutY="482.0" text="Totaalprijs" />
-                        <TextField fx:id="totalAmountTextfield" layoutX="322.0" layoutY="478.0" prefHeight="25.0" prefWidth="112.0" />
+                        <Label layoutX="359.0" layoutY="462.0" text="Totaalprijs" />
+                        <TextField fx:id="totalAmountTextfield" layoutX="427.0" layoutY="458.0" prefHeight="25.0" prefWidth="112.0" />
+                  <ImageView fx:id="articleImage" fitHeight="239.0" fitWidth="263.0" layoutX="743.0" layoutY="105.0" pickOnBounds="true" preserveRatio="true" />
               </children>
             </AnchorPane>
           </content>
         </ScrollPane>
-        <AnchorPane prefHeight="551.0" prefWidth="305.0">
-               <children>
-                  <Button fx:id="payCardButton" layoutX="34.0" layoutY="444.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="118.0" style="-fx-background-color: green;" text="Afrekenen kaart" textFill="WHITE" />
-                  <Button fx:id="payCashButton" layoutX="34.0" layoutY="492.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="118.0" style="-fx-background-color: green;" text="Afrekenen cash"  onAction="#payCash" textFill="WHITE" />
-                  <Button fx:id="removeAllButton" layoutX="34.0" layoutY="397.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="118.0" text="Alles verwijderen" onAction="#clearAll" />
-                  <Button fx:id="removeLastButton" layoutX="34.0" layoutY="352.0" mnemonicParsing="false" text="Laatste verwijderen" />
-                  <Button fx:id="manualOperationButton" layoutX="34.0" layoutY="26.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="118.0" text="Manueel ingeven" />
-               </children>
-        </AnchorPane>
-      </items>
-    </SplitPane>
+        <AnchorPane prefHeight="0.0" prefWidth="1645.0" />
+
     <HBox id="HBox" alignment="CENTER_LEFT" prefHeight="0.0" prefWidth="889.0" spacing="5.0" VBox.vgrow="NEVER">
       <children>
         <Label maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="Left status" HBox.hgrow="ALWAYS">
@@ -140,7 +138,6 @@
           </textFill>
         </Label>
         <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
-        <Label font="$x3" maxWidth="-1.0" text="Right status" textFill="$x4" HBox.hgrow="NEVER" />
       </children>
       <padding>
         <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />

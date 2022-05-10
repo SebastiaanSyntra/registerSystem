@@ -15,17 +15,27 @@ public class Article {
     public String category;
     public int amount;
     public double price;
+    public String articleImage;
 
     public Article() {
     }
 
-    public Article(String barcode, String article, String category, int amount, double price) {
+    public Article(String barcode, String article, String category, int amount, double price, String articleImage) {
         this.barcode = barcode;
         this.article = article;
         this.category = category;
         this.amount = amount;
         this.price = price;
+        this.articleImage = articleImage;
 
+    }
+
+    public String getArticleImage() {
+        return articleImage;
+    }
+
+    public void setArticleImage(String articleImage) {
+        this.articleImage = articleImage;
     }
 
     public int getAmount() {

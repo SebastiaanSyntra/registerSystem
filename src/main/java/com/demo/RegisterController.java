@@ -1,35 +1,31 @@
 package com.demo;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import com.google.gson.Gson;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Json;
 import io.joshworks.restclient.http.Unirest;
-import javafx.beans.value.ObservableIntegerValue;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import net.rgielen.fxweaver.core.FxmlView;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.*;
-import java.awt.event.ActionEvent;
-import java.io.IOException;
-import java.io.OutputStream;
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
 import java.util.ResourceBundle;
 
 @Component
@@ -40,6 +36,8 @@ public class RegisterController implements Initializable {
     TextField barcodeBox;
     @FXML
     TextField employeeField;
+    @FXML
+    TextField totalAmountTextfield = new TextField();
     @FXML
     TableColumn articleColumn;
     @FXML
@@ -52,8 +50,10 @@ public class RegisterController implements Initializable {
     TableColumn calculatedPriceColumn;
     @FXML
     TableView tableView;
+    @FXML
+    ImageView articleImage;
 
-    List<Article> articleList = new ArrayList<>();
+    List<Article> articleList = new ArrayList<Article>();
     String saleHeaderId;
     boolean articleAlreadyScanned;
     int articleFoundIndex;
@@ -73,8 +73,9 @@ public class RegisterController implements Initializable {
         categoryColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Category"));
         amountColumn.setCellValueFactory(
-                new PropertyValueFactory<>("Amount")
-        );
+                new PropertyValueFactory<>("Amount"));
+
+
     }
 
     public void newSaleHeader() throws IOException {
@@ -93,7 +94,7 @@ public class RegisterController implements Initializable {
 
 
         try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(http.getInputStream(), "utf-8"))) {
+                new InputStreamReader(http.getInputStream(), StandardCharsets.UTF_8))) {
             StringBuilder response = new StringBuilder();
             String responseLine = null;
             while ((responseLine = br.readLine()) != null) {
@@ -107,18 +108,27 @@ public class RegisterController implements Initializable {
 
     }
 
-    public void scanArticle() {
+    public void scanArticle() throws IOException {
 
         int index = 0;
         Article scannedArticle = new Article();
+        Double totalPrice = 0D;
 
         //SMTPH-Iph12-1
         HttpResponse<Json> apiResponse = Unirest.get("http://localhost:8080/api/v1/articles/" + barcodeBox.getText()).asJson();
 
 
+
         //articleobject invullen
         scannedArticle = new Gson().fromJson(apiResponse.body().toString(), Article.class);
         scannedArticle.setBarcode(barcodeBox.getText());
+
+
+        byte[] imageBytes = Base64.getDecoder().decode(scannedArticle.getArticleImage());
+        ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
+        BufferedImage scannedImage = ImageIO.read(bis);
+        Image image = SwingFXUtils.toFXImage(scannedImage, null);
+        articleImage.setImage(image);
 
         //check of het artikel al gescand is
         if (articleList.isEmpty()) {
@@ -129,9 +139,9 @@ public class RegisterController implements Initializable {
             //lijst met gescande articles doorlopen
             for (Article articleFromList : articleList) {
                 //articleAlreadyScanned houdt bij of het artikel al gescand werd.
-                if (articleAlreadyScanned == false) {
+                if (!articleAlreadyScanned) {
                    //De barcode van alle artikel in de lijst gecheckt met het nieuw gescande artikel. Als dit matched wordt de boolean op true gezet zodat dit niet meer wordt doorlopen
-                    if (articleFromList.getBarcode().equals(scannedArticle.getBarcode()) && (articleAlreadyScanned == false)) {
+                    if (articleFromList.getBarcode().equals(scannedArticle.getBarcode()) && (!articleAlreadyScanned)) {
                         articleAlreadyScanned = true;
                     }
                     index += 1;
@@ -156,8 +166,10 @@ public class RegisterController implements Initializable {
         for (Article tableArticle:articleList
              ) {
             tableView.getItems().add(tableArticle);
+           totalPrice += tableArticle.getAmount() * tableArticle.getPrice();
         }
 
+        totalAmountTextfield.setText(String.valueOf(totalPrice));
 
         //Testcode
 //        System.out.println("**********************************************");
@@ -175,6 +187,7 @@ public class RegisterController implements Initializable {
     //Clear all knop => nog op te kuisen want verwijdert ook kolommen
     public void clearAll(){
         tableView.getItems().clear();
+
         articleColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Article"));
         priceColumn.setCellValueFactory(
@@ -183,6 +196,7 @@ public class RegisterController implements Initializable {
                 new PropertyValueFactory<>("Category"));
         amountColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Amount"));
+
 
     }
 
