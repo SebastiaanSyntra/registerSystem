@@ -47,16 +47,19 @@ public class RegisterController implements Initializable {
     @FXML
     TableColumn amountColumn;
     @FXML
-    TableColumn calculatedPriceColumn;
+    TableColumn totalPriceColumn;
     @FXML
     TableView tableView;
     @FXML
     ImageView articleImage;
 
+
     List<Article> articleList = new ArrayList<Article>();
     String saleHeaderId;
     boolean articleAlreadyScanned;
     int articleFoundIndex;
+    Double totalPrice = 0D;
+    boolean scannedException;
 
 
 
@@ -74,6 +77,11 @@ public class RegisterController implements Initializable {
                 new PropertyValueFactory<>("Category"));
         amountColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Amount"));
+        amountColumn.setCellValueFactory(
+                new PropertyValueFactory<>("Amount"));
+        totalPriceColumn.setCellValueFactory(
+                new PropertyValueFactory<>("TotalPrice")
+        );
 
 
     }
@@ -109,85 +117,85 @@ public class RegisterController implements Initializable {
     }
 
     public void scanArticle() throws IOException {
-
+        scannedException = false;
         int index = 0;
         Article scannedArticle = new Article();
-        Double totalPrice = 0D;
+
 
         //SMTPH-Iph12-1
         HttpResponse<Json> apiResponse = Unirest.get("http://localhost:8080/api/v1/articles/" + barcodeBox.getText()).asJson();
 
 
-
         //articleobject invullen
-        scannedArticle = new Gson().fromJson(apiResponse.body().toString(), Article.class);
-        scannedArticle.setBarcode(barcodeBox.getText());
+        try {
+            scannedArticle = new Gson().fromJson(apiResponse.body().toString(), Article.class);
+        } catch (Exception e) {
+            barcodeBox.setText("Artikel niet gevonden");
+            scannedException = true;
+        }
+        if (scannedException) {
+        } else {
+            scannedArticle.setBarcode(barcodeBox.getText());
+            scannedArticle.setTotalPrice(scannedArticle.price);
 
-
-        byte[] imageBytes = Base64.getDecoder().decode(scannedArticle.getArticleImage());
-        ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
-        BufferedImage scannedImage = ImageIO.read(bis);
-        Image image = SwingFXUtils.toFXImage(scannedImage, null);
-        articleImage.setImage(image);
-
-        //check of het artikel al gescand is
-        if (articleList.isEmpty()) {
-            //niet gescand => toegevoegd aan List met aantal = 1
-            scannedArticle.setAmount(1);
-            articleList.add(scannedArticle);}
-        else {
-            //lijst met gescande articles doorlopen
-            for (Article articleFromList : articleList) {
-                //articleAlreadyScanned houdt bij of het artikel al gescand werd.
-                if (!articleAlreadyScanned) {
-                   //De barcode van alle artikel in de lijst gecheckt met het nieuw gescande artikel. Als dit matched wordt de boolean op true gezet zodat dit niet meer wordt doorlopen
-                    if (articleFromList.getBarcode().equals(scannedArticle.getBarcode()) && (!articleAlreadyScanned)) {
-                        articleAlreadyScanned = true;
-                    }
-                    index += 1;
-                }
+            if (scannedArticle.getArticleImage() == null) {
+                articleImage.setImage(null);
+            } else {
+                byte[] imageBytes = Base64.getDecoder().decode(scannedArticle.getArticleImage());
+                ByteArrayInputStream bis = new ByteArrayInputStream(imageBytes);
+                BufferedImage scannedImage = ImageIO.read(bis);
+                Image image = SwingFXUtils.toFXImage(scannedImage, null);
+                articleImage.setImage(image);
             }
+            //check of het artikel al gescand is
+            if (articleList.isEmpty()) {
+                //niet gescand => toegevoegd aan List met aantal = 1
+                scannedArticle.setAmount(1);
+                articleList.add(scannedArticle);
+            } else {
+                //lijst met gescande articles doorlopen
+                for (Article articleFromList : articleList) {
+                    //articleAlreadyScanned houdt bij of het artikel al gescand werd.
+                    if (!articleAlreadyScanned) {
+                        //De barcode van alle artikel in de lijst gecheckt met het nieuw gescande artikel. Als dit matched wordt de boolean op true gezet zodat dit niet meer wordt doorlopen
+                        if (articleFromList.getBarcode().equals(scannedArticle.getBarcode()) && (!articleAlreadyScanned)) {
+                            articleAlreadyScanned = true;
 
-            //als het article al gescanned werd wordt de amount aangepast
-            if(articleAlreadyScanned){
-                articleList.get(index-1).amount += 1;
-                articleAlreadyScanned = false;}
-            else{
-                //anders gewoon toegevoegd met amount = 1
+                        }
+                        index += 1;
+                    }
+                }
+
+                //als het article al gescanned werd wordt de amount aangepast
+                if (articleAlreadyScanned) {
+                    articleList.get(index - 1).amount += 1;
+                    articleList.get(index - 1).totalPrice = (articleList.get(index - 1).price * articleList.get(index - 1).amount);
+                    articleAlreadyScanned = false;
+                } else {
+                    //anders gewoon toegevoegd met amount = 1
                     articleList.add(scannedArticle);
                     scannedArticle.setAmount(1);
                 }
-            index = 0;
+                index = 0;
             }
 
 
-        //table wordt bij elke scan gecleared om de articleList volledig opnieuw in te laden (kon dit niet anders oplossen..)
-        tableView.getItems().clear();
-        for (Article tableArticle:articleList
-             ) {
-            tableView.getItems().add(tableArticle);
-           totalPrice += tableArticle.getAmount() * tableArticle.getPrice();
+            //table wordt bij elke scan gecleared om de articleList volledig opnieuw in te laden (kon dit niet anders oplossen..)
+            tableView.getItems().clear();
+            totalPrice = 0D;
+
+            for (Article tableArticle : articleList
+            ) {
+                tableView.getItems().add(tableArticle);
+                totalPrice += tableArticle.getAmount() * tableArticle.getPrice();
+            }
+
+            totalAmountTextfield.setText(String.valueOf(totalPrice));
         }
-
-        totalAmountTextfield.setText(String.valueOf(totalPrice));
-
-        //Testcode
-//        System.out.println("**********************************************");
-//        for (Article articleFromList: articleList
-//             ) {
-//            System.out.println("---------------------------------------");
-//            System.out.println("Barcode: "+ articleFromList.getBarcode());
-//            System.out.println("Artikel: "+ articleFromList.getArticle());
-//            System.out.println("Prijs: "+ articleFromList.getPrice());
-//            System.out.println("Aantal: "+ articleFromList.getAmount());
-//        }
-
     }
 
-    //Clear all knop => nog op te kuisen want verwijdert ook kolommen
     public void clearAll(){
         tableView.getItems().clear();
-
         articleColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Article"));
         priceColumn.setCellValueFactory(
@@ -196,17 +204,48 @@ public class RegisterController implements Initializable {
                 new PropertyValueFactory<>("Category"));
         amountColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Amount"));
-
-
+        totalPriceColumn.setCellValueFactory(
+                new PropertyValueFactory<>("totalPrice")
+        );
+        tableView.getItems();
     }
 
+    //totaalprijsveld nog aanpassenx
+    public void removeLastLine(){
+        int articleIndex;
+        Article removedArticle = new Article();
+        if(articleList.isEmpty()){
+
+        } else{
+            removedArticle = articleList.get(articleList.size()-1);
+        }
+
+        if(removedArticle.amount > 1 ){
+
+            removedArticle.amount -= 1;
+            removedArticle.totalPrice = (removedArticle.getAmount() * removedArticle.getPrice());
+        } else {
+            articleList.remove(articleList.size() - 1);
+        }
+        tableView.getItems().clear();
+        totalPrice = 0D;
+
+        for (Article tableArticle:articleList
+        ) {
+            tableView.getItems().add(tableArticle);
+            totalPrice += tableArticle.getAmount() * tableArticle.getPrice();
+
+        }
+
+        totalAmountTextfield.setText(String.valueOf(totalPrice));
+
+    }
 
     public void payCash() throws IOException {
 
         //Iterating through all the scanned articles
         for (Article scannedArticle: articleList
              ) {
-
             //Opening the connection
             URL url = new URL("http://localhost:8080/api/v1/sale-lines");
             HttpURLConnection http = (HttpURLConnection)url.openConnection();

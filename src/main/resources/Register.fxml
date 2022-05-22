@@ -32,28 +32,16 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.SeparatorMenuItem?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Pane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.paint.Color?>
-<?import javafx.scene.text.Font?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
 
-<VBox prefHeight="713.0" prefWidth="1040.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.demo.RegisterController">
+<VBox prefHeight="713.0" prefWidth="1040.0" xmlns="http://javafx.com/javafx/11.0.14-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.demo.RegisterController">
   <children>
-    <MenuBar prefHeight="0.0" prefWidth="1883.0" VBox.vgrow="ALWAYS">
+   <!--  <MenuBar prefHeight="0.0" prefWidth="1883.0" VBox.vgrow="ALWAYS">
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
@@ -91,11 +79,11 @@
           </items>
         </Menu>
       </menus>
-    </MenuBar>
+    </MenuBar> -->
 
         <AnchorPane prefHeight="154.0" prefWidth="1643.0">
           <children>
-                  <Button fx:id="removeLastButton" layoutX="800.0" layoutY="2.0" mnemonicParsing="false" text="Laatste verwijderen" />
+                  <Button fx:id="removeLastButton" layoutX="800.0" layoutY="2.0" mnemonicParsing="false" text="Laatste verwijderen" onAction="#removeLastLine"/>
                   <Label layoutX="20.0" layoutY="26.0" text="Verkoper" />
                   <TextField fx:id="employeeField" layoutX="98.0" layoutY="22.0" prefHeight="25.0" prefWidth="118.0" />
                   <TextField fx:id="barcodeBox" layoutX="251.0" layoutY="22.0" prefHeight="25.0" prefWidth="158.0" />
@@ -109,13 +97,14 @@
           <content>
             <AnchorPane id="Content" prefHeight="393.0" prefWidth="922.0">
               <children>
-                        <TableView fx:id="tableView" layoutX="17.0" layoutY="8.0" prefHeight="376.0" prefWidth="726.0">
+                        <TableView fx:id="tableView" layoutX="17.0" layoutY="8.0" prefHeight="376.0" prefWidth="520.0">
                           <columns>
-                            <TableColumn fx:id="articleColumn" prefWidth="135.0" text="Artkel" />
-                            <TableColumn fx:id="categoryColumn" prefWidth="130.0" text="Categorie" />
-                              <TableColumn fx:id="priceColumn" prefWidth="123.0" text="Eenheidsprijs" />
-                              <TableColumn fx:id="amountColumn" maxWidth="300.0" prefWidth="360.0" text="Aantal" />
+                            <TableColumn fx:id="articleColumn" prefWidth="98.0" text="Artikel" />
+                            <TableColumn fx:id="categoryColumn" maxWidth="100.0" prefWidth="110.0" text="Categorie" />
+                              <TableColumn fx:id="priceColumn" prefWidth="112.0" text="Eenheidsprijs" />
+                              <TableColumn fx:id="amountColumn" maxWidth="100.0" prefWidth="100.0" text="Aantal" />
                               <TableColumn fx:id="calculatedPriceColumn" minWidth="0.0" prefWidth="0.0" text="Prijs" />
+                        <TableColumn fx:id="totalPriceColumn" prefWidth="110.0" text="Totaalprijs" />
                           </columns>
                         </TableView>
                         <Label layoutX="359.0" layoutY="462.0" text="Totaalprijs" />

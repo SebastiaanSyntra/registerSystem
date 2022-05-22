@@ -16,18 +16,27 @@ public class Article {
     public int amount;
     public double price;
     public String articleImage;
+    public double totalPrice;
 
     public Article() {
     }
 
-    public Article(String barcode, String article, String category, int amount, double price, String articleImage) {
+    public Article(String barcode, String article, String category, int amount, double price, String articleImage, double totalPrice) {
         this.barcode = barcode;
         this.article = article;
         this.category = category;
         this.amount = amount;
         this.price = price;
         this.articleImage = articleImage;
+        this.totalPrice = totalPrice;
+    }
 
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public String getArticleImage() {
