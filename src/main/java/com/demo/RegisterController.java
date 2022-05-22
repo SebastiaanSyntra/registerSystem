@@ -11,6 +11,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Button;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -37,7 +38,18 @@ public class RegisterController implements Initializable {
     @FXML
     TextField employeeField;
     @FXML
-    TextField totalAmountTextfield = new TextField();
+    TextField totalAmountTextfield;
+    @FXML
+    Button removeLastButton;
+    @FXML
+    Button newSaleButton;
+    @FXML
+    Button articleScannerButton;
+    @FXML
+    Button payCashButton;
+    @FXML
+    Button removeAllButton;
+
     @FXML
     TableColumn articleColumn;
     @FXML
@@ -52,6 +64,7 @@ public class RegisterController implements Initializable {
     TableView tableView;
     @FXML
     ImageView articleImage;
+
 
 
     List<Article> articleList = new ArrayList<Article>();
@@ -82,10 +95,16 @@ public class RegisterController implements Initializable {
         totalPriceColumn.setCellValueFactory(
                 new PropertyValueFactory<>("TotalPrice")
         );
-
+        barcodeBox.setDisable(true);
+        totalAmountTextfield.setDisable(true);
+        payCashButton.setDisable(true);
+        articleScannerButton.setDisable(true);
+        removeAllButton.setDisable(true);
+        removeLastButton.setDisable(true);
 
     }
 
+    //TODO: opvangen als applicatie gescande gebruiker niet herkent
     public void newSaleHeader() throws IOException {
         URL url = new URL("http://localhost:8080/api/v1/sale-headers");
         HttpURLConnection http = (HttpURLConnection)url.openConnection();
@@ -113,7 +132,10 @@ public class RegisterController implements Initializable {
         }
         http.disconnect();
 
-
+    barcodeBox.setDisable(false);
+    employeeField.setDisable(true);
+    articleScannerButton.setDisable(false);
+    newSaleButton.setDisable(true);
     }
 
     public void scanArticle() throws IOException {
@@ -126,7 +148,7 @@ public class RegisterController implements Initializable {
         HttpResponse<Json> apiResponse = Unirest.get("http://localhost:8080/api/v1/articles/" + barcodeBox.getText()).asJson();
 
 
-        //articleobject invullen
+        //article object invullen
         try {
             scannedArticle = new Gson().fromJson(apiResponse.body().toString(), Article.class);
         } catch (Exception e) {
@@ -192,9 +214,16 @@ public class RegisterController implements Initializable {
 
             totalAmountTextfield.setText(String.valueOf(totalPrice));
         }
+        removeAllButton.setDisable(false);
+        removeLastButton.setDisable(false);
+        payCashButton.setDisable(false);
     }
 
     public void clearAll(){
+        articleList.clear();
+        totalAmountTextfield.clear();
+        barcodeBox.clear();
+        employeeField.clear();
         tableView.getItems().clear();
         articleColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Article"));
@@ -208,9 +237,14 @@ public class RegisterController implements Initializable {
                 new PropertyValueFactory<>("totalPrice")
         );
         tableView.getItems();
+        barcodeBox.setDisable(false);
+        employeeField.setDisable(true);
+        removeAllButton.setDisable(true);
+        removeLastButton.setDisable(true);
+        payCashButton.setDisable(true);
+        articleImage.setImage(null);
     }
 
-    //totaalprijsveld nog aanpassenx
     public void removeLastLine(){
         int articleIndex;
         Article removedArticle = new Article();
@@ -269,5 +303,29 @@ public class RegisterController implements Initializable {
             System.out.println(http.getResponseCode());
             http.disconnect();
         }
+        totalAmountTextfield.clear();
+        barcodeBox.setDisable(true);
+        barcodeBox.clear();
+        articleScannerButton.setDisable(true);
+        employeeField.setDisable(false);
+        newSaleButton.setDisable(false);
+        employeeField.clear();
+        removeAllButton.setDisable(true);
+        removeLastButton.setDisable(true);
+        payCashButton.setDisable(true);
+        articleImage.setImage(null);
+        tableView.getItems().clear();
+        articleColumn.setCellValueFactory(
+                new PropertyValueFactory<>("Article"));
+        priceColumn.setCellValueFactory(
+                new PropertyValueFactory<>("Price"));
+        categoryColumn.setCellValueFactory(
+                new PropertyValueFactory<>("Category"));
+        amountColumn.setCellValueFactory(
+                new PropertyValueFactory<>("Amount"));
+        totalPriceColumn.setCellValueFactory(
+                new PropertyValueFactory<>("totalPrice")
+        );
+        tableView.getItems();
     }
 }

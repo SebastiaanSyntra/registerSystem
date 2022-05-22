@@ -36,7 +36,8 @@ public class StageInitializer implements ApplicationListener<RegisterApplication
             fxmlLoader.setControllerFactory(RegisterController -> applicationContext.getBean(RegisterController));
             Parent parent = fxmlLoader.load();
         Stage stage = event.getStage();
-        stage.setScene(new Scene(parent, 800, 600));
+        stage.setScene(new Scene(parent, 1920, 1080));
+        stage.setMaximized(true);
         stage.show();
         } catch (IOException e) {
             e.printStackTrace();
