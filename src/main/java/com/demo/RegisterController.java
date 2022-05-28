@@ -8,10 +8,10 @@ import io.joshworks.restclient.http.Unirest;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.Button;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -34,32 +34,34 @@ import java.util.ResourceBundle;
 public class RegisterController implements Initializable {
 
     @FXML
-    TextField barcodeBox;
+    TextField barcodeBox = new TextField();
     @FXML
-    TextField employeeField;
+    TextField employeeField = new TextField();
     @FXML
-    TextField totalAmountTextfield;
+    TextField totalAmountTextfield = new TextField();
     @FXML
-    Button removeLastButton;
+    Button removeLastButton = new Button();
     @FXML
-    Button newSaleButton;
+    Button newSaleButton = new Button();
     @FXML
-    Button articleScannerButton;
+    Button articleScannerButton = new Button();
     @FXML
-    Button payCashButton;
+    Button payCashButton = new Button();
     @FXML
-    Button removeAllButton;
+    Button removeAllButton = new Button();
+    @FXML
+    Button endSaleButton = new Button();
 
     @FXML
-    TableColumn articleColumn;
+    TableColumn articleColumn = new TableColumn();
     @FXML
-    TableColumn priceColumn;
+    TableColumn priceColumn = new TableColumn();
     @FXML
-    TableColumn categoryColumn;
+    TableColumn categoryColumn = new TableColumn();
     @FXML
-    TableColumn amountColumn;
+    TableColumn amountColumn = new TableColumn();
     @FXML
-    TableColumn totalPriceColumn;
+    TableColumn totalPriceColumn = new TableColumn();
     @FXML
     TableView tableView;
     @FXML
@@ -73,13 +75,12 @@ public class RegisterController implements Initializable {
     int articleFoundIndex;
     Double totalPrice = 0D;
     boolean scannedException;
-
-
+    TicketPrinter printer = new TicketPrinter();
 
     public RegisterController(){}
 
 
-
+    //SMTPH-Iph12-1
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         articleColumn.setCellValueFactory(
@@ -101,10 +102,14 @@ public class RegisterController implements Initializable {
         articleScannerButton.setDisable(true);
         removeAllButton.setDisable(true);
         removeLastButton.setDisable(true);
+        endSaleButton.setDisable(false);
 
     }
 
     //TODO: opvangen als applicatie gescande gebruiker niet herkent
+
+    //TODO: wisselgeld
+
     public void newSaleHeader() throws IOException {
         URL url = new URL("http://localhost:8080/api/v1/sale-headers");
         HttpURLConnection http = (HttpURLConnection)url.openConnection();
@@ -136,6 +141,7 @@ public class RegisterController implements Initializable {
     employeeField.setDisable(true);
     articleScannerButton.setDisable(false);
     newSaleButton.setDisable(true);
+    endSaleButton.setDisable(true);
     }
 
     public void scanArticle() throws IOException {
@@ -144,7 +150,7 @@ public class RegisterController implements Initializable {
         Article scannedArticle = new Article();
 
 
-        //SMTPH-Iph12-1
+
         HttpResponse<Json> apiResponse = Unirest.get("http://localhost:8080/api/v1/articles/" + barcodeBox.getText()).asJson();
 
 
@@ -275,6 +281,28 @@ public class RegisterController implements Initializable {
 
     }
 
+
+
+    public void addNumber(){
+
+    }
+
+    public void endSale(){
+        newSaleButton.setDisable(false);
+        employeeField.clear();
+        barcodeBox.setDisable(true);
+        totalAmountTextfield.setDisable(true);
+        payCashButton.setDisable(true);
+        articleScannerButton.setDisable(true);
+        removeAllButton.setDisable(true);
+        removeLastButton.setDisable(true);
+        articleList.clear();
+        saleHeaderId = null;
+        articleAlreadyScanned = false;
+        articleFoundIndex = 0;
+        totalPrice = 0D;
+    }
+
     public void payCash() throws IOException {
 
         //Iterating through all the scanned articles
@@ -303,6 +331,9 @@ public class RegisterController implements Initializable {
             System.out.println(http.getResponseCode());
             http.disconnect();
         }
+        printer.print(articleList);
+
+        //Clear everything
         totalAmountTextfield.clear();
         barcodeBox.setDisable(true);
         barcodeBox.clear();
@@ -315,6 +346,8 @@ public class RegisterController implements Initializable {
         payCashButton.setDisable(true);
         articleImage.setImage(null);
         tableView.getItems().clear();
+        articleList.clear();
+
         articleColumn.setCellValueFactory(
                 new PropertyValueFactory<>("Article"));
         priceColumn.setCellValueFactory(
@@ -327,5 +360,7 @@ public class RegisterController implements Initializable {
                 new PropertyValueFactory<>("totalPrice")
         );
         tableView.getItems();
+
     }
+
 }

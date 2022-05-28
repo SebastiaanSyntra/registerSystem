@@ -23,7 +23,7 @@ public class RegisterApplication extends Application {
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader = new FXMLLoader(RegisterApplication.class.getResource("/Register.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
+        stage.setTitle("Kassa");
         stage.setScene(scene);
         stage.show();
 
