@@ -40,6 +40,10 @@ public class RegisterController implements Initializable {
     @FXML
     TextField totalAmountTextfield = new TextField();
     @FXML
+    TextField totalAmountPaidTxt = new TextField();
+    @FXML
+    TextField returnAmountTxt = new TextField();
+    @FXML
     Button removeLastButton = new Button();
     @FXML
     Button newSaleButton = new Button();
@@ -103,7 +107,7 @@ public class RegisterController implements Initializable {
         removeAllButton.setDisable(true);
         removeLastButton.setDisable(true);
         endSaleButton.setDisable(false);
-
+        returnAmountTxt.setDisable(true);
     }
 
     //TODO: opvangen als applicatie gescande gebruiker niet herkent
@@ -276,15 +280,7 @@ public class RegisterController implements Initializable {
             totalPrice += tableArticle.getAmount() * tableArticle.getPrice();
 
         }
-
         totalAmountTextfield.setText(String.valueOf(totalPrice));
-
-    }
-
-
-
-    public void addNumber(){
-
     }
 
     public void endSale(){
@@ -332,8 +328,10 @@ public class RegisterController implements Initializable {
             http.disconnect();
         }
         printer.print(articleList);
+        returnAmountTxt.setText(String.valueOf( Double.parseDouble(totalAmountPaidTxt.getText()) - Double.parseDouble(totalAmountTextfield.getText()) ));
 
         //Clear everything
+        totalAmountPaidTxt.clear();
         totalAmountTextfield.clear();
         barcodeBox.setDisable(true);
         barcodeBox.clear();
@@ -362,5 +360,41 @@ public class RegisterController implements Initializable {
         tableView.getItems();
 
     }
+
+    public void addNumber1(){
+        totalAmountPaidTxt.setText(totalAmountPaidTxt.getText() + 1);
+    }
+    public void addNumber2(){
+        totalAmountPaidTxt.setText(totalAmountPaidTxt.getText() + 2);
+    }
+    public void addNumber3(){
+        totalAmountPaidTxt.setText(totalAmountPaidTxt.getText() + 3);
+    }
+    public void addNumber4(){
+        totalAmountPaidTxt.setText(totalAmountPaidTxt.getText() + 4);
+    }
+    public void addNumber5(){
+        totalAmountPaidTxt.setText(totalAmountPaidTxt.getText() + 5);
+    }
+    public void addNumber6(){
+        totalAmountPaidTxt.setText(totalAmountPaidTxt.getText() + 6);
+    }
+    public void addNumber7(){
+        totalAmountPaidTxt.setText(totalAmountPaidTxt.getText() + 7);
+    }
+    public void addNumber8(){
+        totalAmountPaidTxt.setText(totalAmountPaidTxt.getText() + 8);
+    }
+    public void addNumber9(){
+        totalAmountPaidTxt.setText(totalAmountPaidTxt.getText() + 9);
+    }
+    public void addNumber0(){
+        totalAmountPaidTxt.setText(totalAmountPaidTxt.getText() + 0);
+    }
+    public void addDecimalPoint(){
+        totalAmountPaidTxt.setText(totalAmountPaidTxt.getText() + ".");
+    }
+
+
 
 }
