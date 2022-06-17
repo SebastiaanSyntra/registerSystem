@@ -6,8 +6,14 @@ import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Json;
 import io.joshworks.restclient.http.Unirest;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import java.awt.AWTEvent;
+
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -15,10 +21,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.layout.TilePane;
+import javafx.stage.Popup;
+import javafx.stage.Stage;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
-
 import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -112,8 +123,6 @@ public class RegisterController implements Initializable {
 
     //TODO: opvangen als applicatie gescande gebruiker niet herkent
 
-    //TODO: wisselgeld
-
     public void newSaleHeader() throws IOException {
         URL url = new URL("http://localhost:8080/api/v1/sale-headers");
         HttpURLConnection http = (HttpURLConnection)url.openConnection();
@@ -138,15 +147,25 @@ public class RegisterController implements Initializable {
             }
             saleHeaderId = response.toString();
             System.out.println(response.toString());
+        } catch(Exception ex){
+            employeeField.setText("Werknemer niet gevonden.");
         }
         http.disconnect();
 
+    returnAmountTxt.clear();
     barcodeBox.setDisable(false);
     employeeField.setDisable(true);
     articleScannerButton.setDisable(false);
     newSaleButton.setDisable(true);
-    endSaleButton.setDisable(true);
+    endSaleButton.setDisable(false);
     }
+
+    public void replaceAndScan() throws IOException {
+        barcodeBox.setText(barcodeBox.getText().replace("§","-"));
+        scanArticle();
+
+    }
+
 
     public void scanArticle() throws IOException {
         scannedException = false;
@@ -227,6 +246,8 @@ public class RegisterController implements Initializable {
         removeAllButton.setDisable(false);
         removeLastButton.setDisable(false);
         payCashButton.setDisable(false);
+        barcodeBox.clear();
+        barcodeBox.requestFocus();
     }
 
     public void clearAll(){
@@ -301,65 +322,79 @@ public class RegisterController implements Initializable {
 
     public void payCash() throws IOException {
 
-        //Iterating through all the scanned articles
-        for (Article scannedArticle: articleList
-             ) {
-            //Opening the connection
-            URL url = new URL("http://localhost:8080/api/v1/sale-lines");
-            HttpURLConnection http = (HttpURLConnection)url.openConnection();
-            http.setRequestMethod("POST");
-            http.setRequestProperty("Content-Type", "application/json");
-            http.setRequestProperty("Accept", "application/json");
-            http.setDoOutput(true);
+        if (Double.parseDouble(totalAmountTextfield.getText()) > Double.parseDouble(totalAmountPaidTxt.getText())) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Ontoereikendbedrag.fxml"));
+            Parent parent = loader.load();
+            Stage stage = new Stage();
+            Scene scene = new Scene(parent, 600, 400);
+            stage.setScene(scene);
+            stage.show();
+            totalAmountPaidTxt.clear();
+        } else {
 
-            //Building the JSON
-            String data = "{\n" +
-                    "    \"barcode\":\""+scannedArticle.getBarcode()+"\",\n" +
-                    "    \"quantity\": "+scannedArticle.getAmount()+",\n" +
-                    "    \"unitPrice\": "+scannedArticle.getPrice()+",\n" +
-                    "    \"saleHeaderId\": "+saleHeaderId+"\n" +
-                    "}";
+            //Iterating through all the scanned articles
+            for (Article scannedArticle : articleList
+            ) {
+                //Opening the connection
+                URL url = new URL("http://localhost:8080/api/v1/sale-lines");
+                HttpURLConnection http = (HttpURLConnection) url.openConnection();
+                http.setRequestMethod("POST");
+                http.setRequestProperty("Content-Type", "application/json");
+                http.setRequestProperty("Accept", "application/json");
+                http.setDoOutput(true);
 
-            //Sending to API
-            byte[] out = data.getBytes(StandardCharsets.UTF_8);
-            OutputStream stream = http.getOutputStream();
-            stream.write(out);
-            System.out.println(http.getResponseCode());
-            http.disconnect();
+                //Building the JSON
+                String data = "{\n" +
+                        "    \"barcode\":\"" + scannedArticle.getBarcode() + "\",\n" +
+                        "    \"quantity\": " + scannedArticle.getAmount() + ",\n" +
+                        "    \"unitPrice\": " + scannedArticle.getPrice() + ",\n" +
+                        "    \"saleHeaderId\": " + saleHeaderId + "\n" +
+                        "}";
+
+                //Sending to API
+                byte[] out = data.getBytes(StandardCharsets.UTF_8);
+                OutputStream stream = http.getOutputStream();
+                stream.write(out);
+                System.out.println(http.getResponseCode());
+                http.disconnect();
+            }
+            printer.print(articleList, employeeField.getText(), Double.parseDouble(totalAmountPaidTxt.getText()));
+            returnAmountTxt.setText(String.valueOf(Double.parseDouble(totalAmountPaidTxt.getText()) - Double.parseDouble(totalAmountTextfield.getText())));
+
+            //Clear everything
+            totalAmountPaidTxt.clear();
+            totalAmountTextfield.clear();
+            barcodeBox.setDisable(true);
+            barcodeBox.clear();
+            articleScannerButton.setDisable(true);
+            employeeField.setDisable(false);
+            newSaleButton.setDisable(false);
+            employeeField.clear();
+            removeAllButton.setDisable(true);
+            removeLastButton.setDisable(true);
+            payCashButton.setDisable(true);
+            articleImage.setImage(null);
+            tableView.getItems().clear();
+            articleList.clear();
+
+            articleColumn.setCellValueFactory(
+                    new PropertyValueFactory<>("Article"));
+            priceColumn.setCellValueFactory(
+                    new PropertyValueFactory<>("Price"));
+            categoryColumn.setCellValueFactory(
+                    new PropertyValueFactory<>("Category"));
+            amountColumn.setCellValueFactory(
+                    new PropertyValueFactory<>("Amount"));
+            totalPriceColumn.setCellValueFactory(
+                    new PropertyValueFactory<>("totalPrice")
+            );
+            tableView.getItems();
+
         }
-        printer.print(articleList);
-        returnAmountTxt.setText(String.valueOf( Double.parseDouble(totalAmountPaidTxt.getText()) - Double.parseDouble(totalAmountTextfield.getText()) ));
-
-        //Clear everything
-        totalAmountPaidTxt.clear();
-        totalAmountTextfield.clear();
-        barcodeBox.setDisable(true);
-        barcodeBox.clear();
-        articleScannerButton.setDisable(true);
-        employeeField.setDisable(false);
-        newSaleButton.setDisable(false);
-        employeeField.clear();
-        removeAllButton.setDisable(true);
-        removeLastButton.setDisable(true);
-        payCashButton.setDisable(true);
-        articleImage.setImage(null);
-        tableView.getItems().clear();
-        articleList.clear();
-
-        articleColumn.setCellValueFactory(
-                new PropertyValueFactory<>("Article"));
-        priceColumn.setCellValueFactory(
-                new PropertyValueFactory<>("Price"));
-        categoryColumn.setCellValueFactory(
-                new PropertyValueFactory<>("Category"));
-        amountColumn.setCellValueFactory(
-                new PropertyValueFactory<>("Amount"));
-        totalPriceColumn.setCellValueFactory(
-                new PropertyValueFactory<>("totalPrice")
-        );
-        tableView.getItems();
 
     }
+
+
 
     public void addNumber1(){
         totalAmountPaidTxt.setText(totalAmountPaidTxt.getText() + 1);

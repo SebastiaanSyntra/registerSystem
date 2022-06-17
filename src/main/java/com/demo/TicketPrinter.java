@@ -8,20 +8,24 @@ import com.lowagie.text.pdf.PdfWriter;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public class TicketPrinter {
 
-    public void print(List<Article> articleList) throws FileNotFoundException {
+    public void print(List<Article> articleList, String employee, double paid) throws FileNotFoundException {
 
         Document document = new Document();
         double totalPrice = 0D;
 
-        PdfWriter pdfwriter = PdfWriter.getInstance(document, new FileOutputStream("Ticket.pdf")); //afmaken
+        PdfWriter pdfwriter = PdfWriter.getInstance(document, new FileOutputStream("Ticket.pdf"));
 
         document.open();
 
         document.add(new Paragraph("Kassa ticket"));
+        document.add(new Paragraph(LocalDateTime.now().getDayOfMonth() + "-" + LocalDateTime.now().getMonthValue() + "-" + LocalDateTime.now().getYear()));
+        document.add(new Paragraph(LocalDateTime.now().getHour() + ":" + LocalDateTime.now().getMinute()));
 
 
         Table table = new Table(4);
@@ -55,7 +59,10 @@ public class TicketPrinter {
         }
 
         document.add(table);
-        document.add(new Paragraph("Eindtotaal: " + String.valueOf(totalPrice)));
+        document.add(new Paragraph("------------------------------"));
+        document.add(new Paragraph("Eindtotaal: € " + totalPrice));
+        document.add(new Paragraph("Betaald: € " + paid));
+        document.add(new Paragraph("Wisselgeld: € " +  (paid - totalPrice)));
         document.close();
 
     }
