@@ -34,6 +34,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TableColumn?>
@@ -55,15 +56,27 @@
         <AnchorPane prefHeight="154.0" prefWidth="1643.0">
           <children>
                   <Button fx:id="removeLastButton" layoutX="1384.0" layoutY="30.0" mnemonicParsing="false" onAction="#removeLastLine" text="Laatste verwijderen" />
-                  <Label layoutX="30.0" layoutY="25.0" prefHeight="31.0" prefWidth="144.0" text="Medewerker">
+                  <Label layoutX="254.0" layoutY="23.0" prefHeight="31.0" prefWidth="144.0" text="Medewerker">
                <font>
                   <Font size="26.0" />
                </font></Label>
-                  <TextField fx:id="employeeField" layoutX="30.0" layoutY="69.0" onAction="#newSaleHeader" prefHeight="60.0" prefWidth="180.0" />
-                  <TextField fx:id="barcodeBox" layoutX="248.0" layoutY="69.0" onAction="#replaceAndScan" prefHeight="60.0" prefWidth="180.0" />
+                  <TextField fx:id="employeeField" layoutX="254.0" layoutY="67.0" onAction="#newSaleHeader" prefHeight="60.0" prefWidth="180.0">
+               <font>
+                  <Font size="26.0" />
+               </font></TextField>
+                  <TextField fx:id="barcodeBox" layoutX="447.0" layoutY="67.0" onAction="#replaceAndScan" prefHeight="60.0" prefWidth="180.0">
+               <font>
+                  <Font size="26.0" />
+               </font></TextField>
                    <Button fx:id="removeAllButton" layoutX="1384.0" layoutY="63.0" mnemonicParsing="false" onAction="#clearAll" prefHeight="25.0" prefWidth="118.0" text="Alles verwijderen" />
                   <Button fx:id="endSaleButton" layoutX="1384.0" layoutY="99.0" mnemonicParsing="false" onAction="#endSale" prefHeight="25.0" prefWidth="118.0" text="Verkoop afbreken" />
-            <Label layoutX="248.0" layoutY="25.0" prefHeight="31.0" prefWidth="144.0" text="Scan artikel">
+            <Label layoutX="447.0" layoutY="23.0" prefHeight="31.0" prefWidth="144.0" text="Scan artikel">
+               <font>
+                  <Font size="26.0" />
+               </font>
+            </Label>
+            <ChoiceBox fx:id="storeChoicebox" layoutX="28.0" layoutY="68.0" onAction="#StoreChosen" prefHeight="60.0" prefWidth="207.0" style="-fx-background-size: 26;" />
+            <Label layoutX="28.0" layoutY="24.0" prefHeight="25.0" prefWidth="207.0" text="Winkel">
                <font>
                   <Font size="26.0" />
                </font>

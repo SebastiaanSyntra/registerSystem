@@ -5,6 +5,8 @@ import com.google.gson.Gson;
 import io.joshworks.restclient.http.HttpResponse;
 import io.joshworks.restclient.http.Json;
 import io.joshworks.restclient.http.Unirest;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -14,10 +16,7 @@ import java.awt.AWTEvent;
 
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -25,6 +24,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.TilePane;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import lombok.SneakyThrows;
 import net.rgielen.fxweaver.core.FxmlView;
 import org.springframework.stereotype.Component;
 import javax.imageio.ImageIO;
@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Component
 @FxmlView
@@ -81,6 +83,9 @@ public class RegisterController implements Initializable {
     TableView tableView;
     @FXML
     ImageView articleImage;
+    @FXML
+    ChoiceBox storeChoicebox;
+
 
 
 
@@ -96,6 +101,7 @@ public class RegisterController implements Initializable {
 
 
     //SMTPH-Iph12-1
+    @SneakyThrows
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         articleColumn.setCellValueFactory(
@@ -119,9 +125,32 @@ public class RegisterController implements Initializable {
         removeLastButton.setDisable(true);
         endSaleButton.setDisable(false);
         returnAmountTxt.setDisable(true);
+        employeeField.setDisable(true);
+        chooseStore();
     }
 
-    //TODO: opvangen als applicatie gescande gebruiker niet herkent
+    public void chooseStore() throws IOException {
+        ObservableList<String> stores = FXCollections.observableArrayList();
+        HttpResponse<Json> apiResponse = Unirest.get("http://localhost:8080/api/v1/warehouses/stores/").asJson();
+
+        String storenames = apiResponse.body().toString();
+
+        Pattern p = Pattern.compile("\"([^\"]*)\"");
+        Matcher m = p.matcher(storenames);
+        while (m.find()) {
+            System.out.println(m.group(1));
+            stores.add(m.group(1));
+        }
+
+        storeChoicebox.setItems(stores);
+
+    }
+
+    public void StoreChosen(){
+        employeeField.setDisable(false);
+        storeChoicebox.setDisable(true);
+    }
+
 
     public void newSaleHeader() throws IOException {
         URL url = new URL("http://localhost:8080/api/v1/sale-headers");
@@ -131,12 +160,16 @@ public class RegisterController implements Initializable {
         http.setRequestProperty("Accept", "application/json");
         http.setDoOutput(true);
 
-        String data = "{\n  \"nameSalesPerson\": \"" + employeeField.getText() +"\"}";
+
+
+        String data = "{\n" +
+        "    \"nameSalesPerson\":\"" + employeeField.getText() + "\"" + ",\n" +
+                "    \"store\": \"" + storeChoicebox.getValue().toString() + "\""+ "\n" +
+                "}";
 
         byte[] out = data.getBytes(StandardCharsets.UTF_8);
         OutputStream stream = http.getOutputStream();
         stream.write(out);
-
 
         try(BufferedReader br = new BufferedReader(
                 new InputStreamReader(http.getInputStream(), StandardCharsets.UTF_8))) {
@@ -171,9 +204,6 @@ public class RegisterController implements Initializable {
         scannedException = false;
         int index = 0;
         Article scannedArticle = new Article();
-
-
-
         HttpResponse<Json> apiResponse = Unirest.get("http://localhost:8080/api/v1/articles/" + barcodeBox.getText()).asJson();
 
 
